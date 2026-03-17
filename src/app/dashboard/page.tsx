@@ -3,6 +3,7 @@ import { id } from "date-fns/locale";
 import { BellRing, PackageOpen, Printer, ShoppingCart } from "lucide-react";
 import { requireUserWithRole } from "@/lib/auth";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
+import { DashboardAutoDaySync } from "@/components/dashboard-auto-day-sync";
 import {
     addItemAction,
     bulkUpsertInventoryAction,
@@ -96,6 +97,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
     return (
         <main className="min-h-screen bg-[linear-gradient(145deg,#e8f7f1_0%,#f3fbf8_42%,#d9efe8_100%)] p-4 md:p-8">
+            <DashboardAutoDaySync />
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="rounded-3xl border border-[#00674F]/25 bg-white p-6 shadow-sm">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -103,7 +105,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#00674F]">
                                 Dashboard Harian
                             </p>
-                            <h1 className="mt-2 text-3xl font-black text-zinc-900">Order Bahan RM. KARANGKOBAR</h1>
+                            <h1 className="mt-2 text-3xl font-black text-zinc-900">Order RM. KARANGKOBAR</h1>
                             <p className="mt-1 text-zinc-600">
                                 Laporan: {format(selectedReportDateObj, "EEEE, dd MMMM yyyy", { locale: id })} -
                                 Order untuk {format(parseISO(selectedOrderDate), "dd MMMM yyyy", { locale: id })}
@@ -140,7 +142,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
                 <section className="grid gap-4 md:grid-cols-1">
                     <div className="rounded-2xl border border-[#00674F]/25 bg-white p-5">
-                        <p className="text-sm text-zinc-500">Jumlah barang</p>
+                        <p className="text-sm text-zinc-500">Jumlah barang/bahan</p>
                         <p className="mt-2 text-3xl font-black text-zinc-900">{totalItems}</p>
                     </div>
                 </section>
@@ -149,16 +151,16 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                     <section className="rounded-2xl border border-zinc-200 bg-white p-5">
                         <div className="mb-4 flex items-center gap-2">
                             <PackageOpen className="h-5 w-5 text-[#00674F]" />
-                            <h2 className="text-lg font-bold text-zinc-900">Input Barang</h2>
+                            <h2 className="text-lg font-bold text-zinc-900">Input Barang/Bahan</h2>
                         </div>
 
                         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
                             <form id={addItemFormId} action={addItemAction} className="space-y-3 rounded-xl border border-zinc-200 p-4">
-                                <p className="text-sm font-semibold text-zinc-800">Tambah Barang</p>
+                                <p className="text-sm font-semibold text-zinc-800">Tambah Barang/Bahan</p>
                                 <input
                                     name="name"
                                     required
-                                    placeholder="Nama barang"
+                                    placeholder="Nama barang/bahan"
                                     className="w-full rounded-xl border border-zinc-200 px-4 py-2.5 outline-none ring-[#00674F] focus:ring"
                                 />
                                 <input
@@ -169,10 +171,10 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                                 />
                                 <ConfirmSubmitButton
                                     formId={addItemFormId}
-                                    triggerLabel="Simpan Barang Baru"
+                                    triggerLabel="Simpan Barang/Bahan Baru"
                                     triggerClassName="w-full rounded-xl bg-[#00674F] py-2.5 text-sm font-semibold text-white hover:bg-[#005340]"
-                                    title="Konfirmasi simpan barang"
-                                    description="Yakin ingin menambahkan barang baru?"
+                                    title="Konfirmasi simpan barang/bahan"
+                                    description="Yakin ingin menambahkan barang/bahan baru?"
                                 />
                             </form>
 
@@ -217,8 +219,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                                                                 formId={editFormId}
                                                                 triggerLabel="Update"
                                                                 triggerClassName="rounded-lg bg-[#00674F] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#005340]"
-                                                                title="Konfirmasi update barang"
-                                                                description="Yakin ingin menyimpan perubahan nama/satuan barang ini?"
+                                                                title="Konfirmasi update barang/bahan"
+                                                                description="Yakin ingin menyimpan perubahan nama/satuan barang/bahan ini?"
                                                             />
                                                             <form id={`delete-item-${item.id}`} action={deleteItemAction}>
                                                                 <input type="hidden" name="itemId" value={item.id} />
@@ -227,8 +229,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                                                                 formId={`delete-item-${item.id}`}
                                                                 triggerLabel="Hapus"
                                                                 triggerClassName="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700"
-                                                                title="Konfirmasi hapus barang"
-                                                                description="Barang akan dinonaktifkan. Lanjutkan?"
+                                                                title="Konfirmasi hapus barang/bahan"
+                                                                description="Barang/bahan akan dinonaktifkan. Lanjutkan?"
                                                             />
                                                         </div>
                                                     </td>
@@ -297,8 +299,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                     {items.length === 0 ? (
                         <p className="rounded-xl bg-zinc-50 p-4 text-sm text-zinc-600">
                             {role === "owner"
-                                ? "Belum ada barang. Tambahkan barang terlebih dahulu."
-                                : "Belum ada barang dari pemilik."}
+                                ? "Belum ada barang/bahan. Tambahkan barang/bahan terlebih dahulu."
+                                : "Belum ada barang/bahan dari pemilik."}
                         </p>
                     ) : (
                         <form id={bulkSaveFormId} action={bulkUpsertInventoryAction}>
@@ -310,7 +312,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                                 <table className="w-full min-w-4xl text-sm">
                                     <thead>
                                         <tr className="border-b border-zinc-200 text-left text-zinc-500">
-                                            <th className="py-3 pr-3">Barang</th>
+                                            <th className="py-3 pr-3">Barang/Bahan</th>
                                             <th className="py-3 pr-3">Satuan</th>
                                             <th className="py-3 pr-3">Sisa</th>
                                             <th className="py-3 pr-3">Order</th>

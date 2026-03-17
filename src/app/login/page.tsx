@@ -21,10 +21,10 @@ export default async function LoginPage() {
                             RM. KARANGKOBAR
                         </p>
                         <h2 className="mt-4 text-4xl font-black leading-tight text-zinc-900">
-                            Kontrol Stok & Order Barang
+                            Manajemen Stok & Order
                         </h2>
                         <p className="mt-4 max-w-xl text-zinc-700">
-                            Pantau stok bahan baku dan catat order dengan mudah melalui dashboard.
+                            Pantau stok bahan/barang dan catat order dengan mudah melalui dashboard.
                         </p>
                     </section>
 

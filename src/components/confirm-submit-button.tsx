@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 type ConfirmSubmitButtonProps = {
     formId: string;
@@ -9,6 +10,7 @@ type ConfirmSubmitButtonProps = {
     title: string;
     description?: string;
     confirmLabel?: string;
+    loadingLabel?: string;
     cancelLabel?: string;
 };
 
@@ -19,11 +21,14 @@ export function ConfirmSubmitButton({
     title,
     description,
     confirmLabel = "Ya, lanjutkan",
+    loadingLabel = "Memproses...",
     cancelLabel = "Tidak",
 }: ConfirmSubmitButtonProps) {
     const [open, setOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     function handleConfirm() {
+        setIsSubmitting(true);
         const form = document.getElementById(formId);
         if (form instanceof HTMLFormElement) {
             form.requestSubmit();
@@ -33,8 +38,20 @@ export function ConfirmSubmitButton({
 
     return (
         <>
-            <button type="button" onClick={() => setOpen(true)} className={triggerClassName}>
-                {triggerLabel}
+            <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className={triggerClassName}
+                disabled={isSubmitting}
+            >
+                {isSubmitting ? (
+                    <span className="inline-flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {loadingLabel}
+                    </span>
+                ) : (
+                    triggerLabel
+                )}
             </button>
 
             {open ? (
@@ -47,6 +64,7 @@ export function ConfirmSubmitButton({
                             <button
                                 type="button"
                                 onClick={() => setOpen(false)}
+                                disabled={isSubmitting}
                                 className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold text-zinc-700"
                             >
                                 {cancelLabel}
@@ -54,9 +72,17 @@ export function ConfirmSubmitButton({
                             <button
                                 type="button"
                                 onClick={handleConfirm}
-                                className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-semibold text-white"
+                                disabled={isSubmitting}
+                                className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-70"
                             >
-                                {confirmLabel}
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        {loadingLabel}
+                                    </>
+                                ) : (
+                                    confirmLabel
+                                )}
                             </button>
                         </div>
                     </div>

@@ -106,7 +106,7 @@ export async function GET(request: Request) {
 
     const noteTotal = printableRows.reduce((acc, row) => acc + Number(row.price ?? 0), 0);
 
-    const headers = ["Barang", "Satuan", "Order", "Harga Beli"];
+    const headers = ["Barang/Bahan", "Satuan", "Order", "Harga Beli"];
     const colX = [40, 300, 420, 520];
     let y = 510;
 
