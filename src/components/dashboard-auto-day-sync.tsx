@@ -2,9 +2,10 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getJakartaDateString } from "@/lib/jakarta-date";
 
 function getTodayString() {
-    return new Date().toISOString().slice(0, 10);
+    return getJakartaDateString();
 }
 
 export function DashboardAutoDaySync() {

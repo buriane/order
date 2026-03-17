@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Order Bahan Restoran",
-  description: "Aplikasi manajemen sisa stok dan order bahan restoran berbasis Next.js + Supabase.",
+  title: "Order Barang/Bahan",
+  description: "Aplikasi manajemen sisa stok dan order bahan/barang",
 };
 
 export default function RootLayout({

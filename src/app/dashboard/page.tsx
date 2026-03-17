@@ -4,6 +4,7 @@ import { BellRing, PackageOpen, Printer, ShoppingCart } from "lucide-react";
 import { requireUserWithRole } from "@/lib/auth";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { DashboardAutoDaySync } from "@/components/dashboard-auto-day-sync";
+import { getJakartaDateString } from "@/lib/jakarta-date";
 import {
     addItemAction,
     bulkUpsertInventoryAction,
@@ -45,9 +46,8 @@ function isValidDateInput(value?: string) {
 export default async function DashboardPage({ searchParams }: DashboardProps) {
     const { role, user, supabase } = await requireUserWithRole();
 
-    const now = new Date();
-    const todayDate = format(now, "yyyy-MM-dd");
-    const todayOrderDate = format(addDays(now, 1), "yyyy-MM-dd");
+    const todayDate = getJakartaDateString();
+    const todayOrderDate = format(addDays(parseISO(todayDate), 1), "yyyy-MM-dd");
 
     const resolvedSearch = (await searchParams) ?? {};
     const selectedReportDate =
