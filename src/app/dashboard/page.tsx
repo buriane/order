@@ -4,6 +4,7 @@ import { BellRing, PackageOpen, Printer, ShoppingCart } from "lucide-react";
 import { requireUserWithRole } from "@/lib/auth";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { DashboardAutoDaySync } from "@/components/dashboard-auto-day-sync";
+import { OwnerNotificationListener } from "@/components/owner-notification-listener";
 import { getJakartaDateString } from "@/lib/jakarta-date";
 import {
     addItemAction,
@@ -56,6 +57,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             : todayDate;
     const selectedReportDateObj = parseISO(selectedReportDate);
     const selectedOrderDate = format(addDays(selectedReportDateObj, 1), "yyyy-MM-dd");
+    const todayLabel = format(parseISO(todayDate), "EEEE, dd MMMM yyyy", { locale: id });
 
     const ownerNotificationPromise =
         role === "owner"
@@ -134,10 +136,20 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                         <div className="flex items-center gap-2">
                             <BellRing className="h-5 w-5" />
                             <p className="text-sm font-semibold">
-                                Notifikasi: pegawai sudah menginput data hari ini ({employeeInputCountToday} entri).
+                                Notifikasi: pegawai sudah menginput data pada {todayLabel} ({employeeInputCountToday} entri).
                             </p>
                         </div>
                     </section>
+                ) : null}
+
+                {role === "owner" ? (
+                    <OwnerNotificationListener
+                        ownerUserId={user.id}
+                        todayDate={todayDate}
+                        todayOrderDate={todayOrderDate}
+                        todayLabel={todayLabel}
+                        initialCount={employeeInputCountToday}
+                    />
                 ) : null}
 
                 <section className="grid gap-4 md:grid-cols-1">
