@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 type ConfirmSubmitButtonProps = {
@@ -9,6 +10,7 @@ type ConfirmSubmitButtonProps = {
     triggerClassName: string;
     title: string;
     description?: string;
+    successMessage?: string;
     confirmLabel?: string;
     loadingLabel?: string;
     cancelLabel?: string;
@@ -20,19 +22,103 @@ export function ConfirmSubmitButton({
     triggerClassName,
     title,
     description,
+    successMessage,
     confirmLabel = "Ya, lanjutkan",
     loadingLabel = "Memproses...",
     cancelLabel = "Tidak",
 }: ConfirmSubmitButtonProps) {
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const submitTimeoutRef = useRef<number | null>(null);
+    const toastTimeoutRef = useRef<number | null>(null);
+    const submitRouteKeyRef = useRef<string | null>(null);
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const routeKey = `${pathname}?${searchParams.toString()}`;
+
+    useEffect(() => {
+        if (!isSubmitting || submitRouteKeyRef.current === null) {
+            return;
+        }
+
+        if (submitRouteKeyRef.current === routeKey) {
+            return;
+        }
+
+        const completeId = window.setTimeout(() => {
+            if (submitTimeoutRef.current !== null) {
+                window.clearTimeout(submitTimeoutRef.current);
+                submitTimeoutRef.current = null;
+            }
+
+            setIsSubmitting(false);
+            submitRouteKeyRef.current = null;
+
+            if (successMessage) {
+                if (toastTimeoutRef.current !== null) {
+                    window.clearTimeout(toastTimeoutRef.current);
+                }
+
+                setToastMessage(successMessage);
+                toastTimeoutRef.current = window.setTimeout(() => {
+                    setToastMessage(null);
+                    toastTimeoutRef.current = null;
+                }, 3000);
+            }
+        }, 0);
+
+        return () => {
+            window.clearTimeout(completeId);
+        };
+    }, [isSubmitting, routeKey, successMessage]);
+
+    useEffect(() => {
+        return () => {
+            if (submitTimeoutRef.current !== null) {
+                window.clearTimeout(submitTimeoutRef.current);
+            }
+            if (toastTimeoutRef.current !== null) {
+                window.clearTimeout(toastTimeoutRef.current);
+            }
+        };
+    }, []);
 
     function handleConfirm() {
         setIsSubmitting(true);
+        submitRouteKeyRef.current = routeKey;
+
+        if (submitTimeoutRef.current !== null) {
+            window.clearTimeout(submitTimeoutRef.current);
+        }
+
         const form = document.getElementById(formId);
         if (form instanceof HTMLFormElement) {
             form.requestSubmit();
+            // Fallback reset: server actions can finish without URL changes.
+            submitTimeoutRef.current = window.setTimeout(() => {
+                setIsSubmitting(false);
+                submitRouteKeyRef.current = null;
+
+                if (successMessage) {
+                    if (toastTimeoutRef.current !== null) {
+                        window.clearTimeout(toastTimeoutRef.current);
+                    }
+
+                    setToastMessage(successMessage);
+                    toastTimeoutRef.current = window.setTimeout(() => {
+                        setToastMessage(null);
+                        toastTimeoutRef.current = null;
+                    }, 3000);
+                }
+
+                submitTimeoutRef.current = null;
+            }, 4500);
+        } else {
+            setIsSubmitting(false);
+            submitRouteKeyRef.current = null;
         }
+
         setOpen(false);
     }
 
@@ -86,6 +172,12 @@ export function ConfirmSubmitButton({
                             </button>
                         </div>
                     </div>
+                </div>
+            ) : null}
+
+            {toastMessage ? (
+                <div className="fixed bottom-4 right-4 z-50 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800 shadow-lg">
+                    {toastMessage}
                 </div>
             ) : null}
         </>

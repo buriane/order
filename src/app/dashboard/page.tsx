@@ -187,6 +187,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                                     triggerClassName="w-full rounded-xl bg-[#00674F] py-2.5 text-sm font-semibold text-white hover:bg-[#005340]"
                                     title="Konfirmasi simpan barang/bahan"
                                     description="Yakin ingin menambahkan barang/bahan baru?"
+                                    successMessage="Berhasil menambahkan barang/bahan baru."
                                 />
                             </form>
 
@@ -233,6 +234,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                                                                 triggerClassName="rounded-lg bg-[#00674F] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#005340]"
                                                                 title="Konfirmasi update barang/bahan"
                                                                 description="Yakin ingin menyimpan perubahan nama/satuan barang/bahan ini?"
+                                                                successMessage="Perubahan barang/bahan berhasil disimpan."
                                                             />
                                                             <form id={`delete-item-${item.id}`} action={deleteItemAction}>
                                                                 <input type="hidden" name="itemId" value={item.id} />
@@ -243,6 +245,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                                                                 triggerClassName="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700"
                                                                 title="Konfirmasi hapus barang/bahan"
                                                                 description="Barang/bahan akan dinonaktifkan. Lanjutkan?"
+                                                                successMessage="Barang/bahan berhasil dihapus."
                                                             />
                                                         </div>
                                                     </td>
@@ -320,9 +323,9 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                             <input type="hidden" name="orderForDate" value={selectedOrderDate} />
                             <input type="hidden" name="itemIds" value={items.map((item) => item.id).join(",")} />
 
-                            <div className="overflow-x-auto">
-                                <table className="w-full min-w-4xl text-sm">
-                                    <thead>
+                            <div>
+                                <table className="w-full text-sm">
+                                    <thead className="hidden md:table-header-group">
                                         <tr className="border-b border-zinc-200 text-left text-zinc-500">
                                             <th className="py-3 pr-3">Barang/Bahan</th>
                                             <th className="py-3 pr-3">Satuan</th>
@@ -331,42 +334,60 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                                             {role === "owner" ? <th className="py-3 pr-3">Harga Beli</th> : null}
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody className="block md:table-row-group">
                                         {items.map((item) => {
                                             const entry = entriesByItemId.get(item.id);
 
                                             return (
-                                                <tr key={item.id} className="border-b border-zinc-100 align-top">
-                                                    <td className="py-3 pr-3 font-semibold text-zinc-800">{item.name}</td>
-                                                    <td className="py-3 pr-3 text-zinc-600">{item.unit}</td>
-                                                    <td className="py-3 pr-3">
+                                                <tr
+                                                    key={item.id}
+                                                    className="mb-3 block rounded-xl border border-zinc-200 bg-zinc-50 p-3 align-top last:mb-0 md:mb-0 md:table-row md:rounded-none md:border-0 md:border-b md:border-zinc-100 md:bg-transparent md:p-0"
+                                                >
+                                                    <td className="mb-2 block py-0 pr-0 font-semibold text-zinc-800 md:mb-0 md:table-cell md:py-3 md:pr-3">
+                                                        <p className="text-[11px] uppercase tracking-wide text-zinc-500 md:hidden">Barang/Bahan</p>
+                                                        <p>{item.name}</p>
+                                                    </td>
+                                                    <td className="mb-2 block py-0 pr-0 text-zinc-600 md:mb-0 md:table-cell md:py-3 md:pr-3">
+                                                        <p className="text-[11px] uppercase tracking-wide text-zinc-500 md:hidden">Satuan</p>
+                                                        <p>{item.unit}</p>
+                                                    </td>
+                                                    <td className="mb-2 block py-0 pr-0 md:mb-0 md:table-cell md:py-3 md:pr-3">
+                                                        <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-zinc-500 md:hidden">
+                                                            Sisa
+                                                        </label>
                                                         <input
                                                             name={`leftoverQty__${item.id}`}
                                                             required
                                                             type="text"
                                                             defaultValue={entry ? String(entry.leftover_qty) : "-"}
                                                             placeholder="contoh: 3 atau -"
-                                                            className="w-28 rounded-lg border border-zinc-200 px-2 py-1.5"
+                                                            className="w-full rounded-lg border border-zinc-200 bg-white px-2 py-2 md:w-28 md:bg-transparent md:py-1.5"
                                                         />
                                                     </td>
-                                                    <td className="py-3 pr-3">
+                                                    <td className="mb-2 block py-0 pr-0 md:mb-0 md:table-cell md:py-3 md:pr-3">
+                                                        <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-zinc-500 md:hidden">
+                                                            Order
+                                                        </label>
                                                         <input
                                                             name={`orderQty__${item.id}`}
                                                             required
                                                             type="text"
                                                             defaultValue={entry ? String(entry.order_qty) : "-"}
                                                             placeholder="contoh: 2 atau -"
-                                                            className="w-28 rounded-lg border border-zinc-200 px-2 py-1.5"
+                                                            className="w-full rounded-lg border border-zinc-200 bg-white px-2 py-2 md:w-28 md:bg-transparent md:py-1.5"
                                                         />
                                                     </td>
                                                     {role === "owner" ? (
-                                                        <td className="py-3 pr-3">
+                                                        <td className="block py-0 pr-0 md:table-cell md:py-3 md:pr-3">
+                                                            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-zinc-500 md:hidden">
+                                                                Harga Beli
+                                                            </label>
                                                             <input
                                                                 name={`note__${item.id}`}
                                                                 type="text"
                                                                 defaultValue={entry?.note ?? ""}
                                                                 placeholder="Harga beli (angka), opsional"
-                                                                className="w-full min-w-52 rounded-lg border border-zinc-200 px-2 py-1.5"
+                                                                className="w-full rounded-lg border border-zinc-200 bg-white px-2 py-2 md:min-w-52 md:bg-transparent md:py-1.5"
                                                             />
                                                         </td>
                                                     ) : null}
@@ -384,6 +405,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                                     triggerClassName="rounded-xl bg-[#00674F] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#005340]"
                                     title="Konfirmasi simpan semua"
                                     description="Yakin ingin menyimpan semua perubahan data sisa/order pada tabel ini?"
+                                    successMessage="Data sisa/order berhasil disimpan."
                                 />
                             </div>
                         </form>

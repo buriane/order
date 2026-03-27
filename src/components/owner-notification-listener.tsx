@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { BellRing } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -12,7 +12,7 @@ type OwnerNotificationListenerProps = {
     initialCount: number;
 };
 
-type NotificationPermissionState = "unsupported" | NotificationPermission;
+type NotificationPermissionState = "checking" | "unsupported" | NotificationPermission;
 
 type NotificationRow = {
     created_by: string;
@@ -49,12 +49,19 @@ export function OwnerNotificationListener({
 }: OwnerNotificationListenerProps) {
     const lastEntryCountRef = useRef(initialCount);
     const [popupMessage, setPopupMessage] = useState<string | null>(null);
-    const [permission, setPermission] = useState<NotificationPermissionState>(() => {
-        if (typeof window === "undefined" || !("Notification" in window)) {
-            return "unsupported";
-        }
-        return window.Notification.permission;
-    });
+    const [permissionOverride, setPermissionOverride] = useState<NotificationPermissionState | null>(null);
+    const detectedPermission = useSyncExternalStore(
+        () => () => undefined,
+        () => {
+            if (!("Notification" in window)) {
+                return "unsupported";
+            }
+
+            return window.Notification.permission;
+        },
+        () => "checking",
+    );
+    const permission = permissionOverride ?? detectedPermission;
 
     const supabase = useMemo(() => createClient(), []);
 
@@ -109,12 +116,12 @@ export function OwnerNotificationListener({
 
     async function enableBrowserNotification() {
         if (!("Notification" in window)) {
-            setPermission("unsupported");
+            setPermissionOverride("unsupported");
             return;
         }
 
         const result = await window.Notification.requestPermission();
-        setPermission(result);
+        setPermissionOverride(result);
     }
 
     return (
@@ -133,6 +140,10 @@ export function OwnerNotificationListener({
                 {permission === "granted" ? (
                     <span className="rounded-full bg-[#00674F]/10 px-2 py-1 font-semibold text-[#00674F]">
                         Izin notifikasi aktif
+                    </span>
+                ) : permission === "checking" ? (
+                    <span className="rounded-full bg-zinc-100 px-2 py-1 font-semibold text-zinc-600">
+                        Memeriksa dukungan notifikasi...
                     </span>
                 ) : permission === "unsupported" ? (
                     <span className="rounded-full bg-zinc-100 px-2 py-1 font-semibold text-zinc-600">
